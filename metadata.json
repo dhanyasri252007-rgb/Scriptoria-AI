@@ -1,0 +1,7 @@
+{
+  "name": "Manuscript Modernizer",
+  "description": "An AI-powered application to digitize, OCR, and modernize ancient manuscripts into contemporary English and Tamil literature.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}

@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SCRIPTORIA-AI - Manuscript Modernizer</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,700;1,400;1,700&family=Inter:wght@300;400;600;700&family=Noto+Sans+Tamil:wght@400;700&family=Pirata+One&display=swap"
+    rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f1e7d0;
+      background-image: url("https://www.transparenttextures.com/patterns/natural-paper.png");
+    }
+
+    .manuscript-font {
+      font-family: 'Crimson Pro', serif;
+    }
+
+    .tamil-font {
+      font-family: 'Noto Sans Tamil', sans-serif;
+    }
+
+    .ancient-title {
+      font-family: 'Pirata One', system-ui;
+    }
+
+    .parchment {
+      background: #fdf6e3;
+      border: 1px solid #d3c6aa;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15), inset 0 0 60px rgba(210, 180, 140, 0.3);
+      position: relative;
+      border-radius: 4px;
+    }
+
+    .parchment-border {
+      position: relative;
+    }
+
+    /* Decorative corner ornaments */
+    .corner-decoration::before,
+    .corner-decoration::after {
+      content: '❦';
+      position: absolute;
+      font-size: 24px;
+      color: rgba(139, 115, 85, 0.3);
+      z-index: 10;
+    }
+
+    .corner-decoration::before {
+      top: 10px;
+      left: 10px;
+      transform: rotate(-45deg);
+    }
+
+    .corner-decoration::after {
+      bottom: 10px;
+      right: 10px;
+      transform: rotate(135deg);
+    }
+
+    .wax-seal {
+      width: 60px;
+      height: 60px;
+      background: radial-gradient(circle, #a31d1d 0%, #7a1515 100%);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: rgba(255, 255, 255, 0.4);
+      box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.4);
+      transform: rotate(-10deg);
+      border: 2px solid #8e1a1a;
+      position: relative;
+    }
+
+    .wax-seal::after {
+      content: 'L';
+      font-family: 'Pirata One', cursive;
+      font-size: 30px;
+      opacity: 0.6;
+    }
+
+    .deckled-edge {
+      filter: url(#paper-edge);
+    }
+
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: rgba(139, 115, 85, 0.1);
+      border-radius: 10px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: rgba(139, 115, 85, 0.4);
+      border-radius: 10px;
+      border: 2px solid transparent;
+      background-clip: content-box;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: rgba(139, 115, 85, 0.6);
+      background-clip: content-box;
+    }
+
+    /* ===== PRINT / PDF EXPORT STYLES ===== */
+    @media print {
+      @page {
+        size: A4;
+        margin: 20mm 18mm;
+      }
+
+      /* Hide the entire page body content */
+      body>* {
+        display: none !important;
+      }
+
+      /* Only show the PDF result overlay */
+      #pdf-result-only {
+        display: block !important;
+        position: static !important;
+        background: white;
+        color: #1a1a1a;
+        font-family: 'Crimson Pro', Georgia, serif;
+        font-size: 12pt;
+        line-height: 1.8;
+      }
+
+      #pdf-result-only h1 {
+        font-family: 'Pirata One', serif;
+        font-size: 24pt;
+        color: #5c3a1e;
+        border-bottom: 2px solid #c4a87a;
+        padding-bottom: 6pt;
+        margin-bottom: 14pt;
+      }
+
+      #pdf-result-only h2 {
+        font-family: 'Pirata One', serif;
+        font-size: 16pt;
+        color: #7c4a1e;
+        margin-top: 18pt;
+        margin-bottom: 6pt;
+        border-bottom: 1px solid #d3c6aa;
+        padding-bottom: 4pt;
+      }
+
+      #pdf-result-only .pdf-section {
+        margin-bottom: 18pt;
+        page-break-inside: avoid;
+      }
+
+      #pdf-result-only pre {
+        font-family: 'Courier New', monospace;
+        font-size: 10pt;
+        white-space: pre-wrap;
+        word-break: break-word;
+        background: #fdf6e3;
+        padding: 10pt;
+        border: 1px solid #d3c6aa;
+      }
+
+      #pdf-result-only .pdf-label {
+        font-size: 8pt;
+        font-weight: bold;
+        text-transform: uppercase;
+        letter-spacing: 0.2em;
+        color: #8b7355;
+        margin-bottom: 4pt;
+      }
+
+      #pdf-result-only .pdf-tamil {
+        font-family: 'Noto Sans Tamil', sans-serif;
+      }
+
+      #pdf-result-only .pdf-confidence {
+        font-size: 9pt;
+        color: #888;
+        text-align: right;
+        margin-top: 4pt;
+      }
+    }
+  </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react/": "https://esm.sh/react@^19.2.4/",
+    "react": "https://esm.sh/react@^19.2.4",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
+    "@google/genai": "https://esm.sh/@google/genai@^1.40.0",
+    "lucide-react": "https://esm.sh/lucide-react@^0.563.0"
+  }
+}
+</script>
+  <link rel="stylesheet" href="/index.css">
+</head>
+
+<body class="text-stone-900 overflow-x-hidden">
+  <svg style="position: absolute; width: 0; height: 0;" xmlns="http://www.w3.org/2000/svg" version="1.1">
+    <defs>
+      <filter id="paper-edge">
+        <feTurbulence type="fractalNoise" baseFrequency="0.05" numOctaves="5" result="noise" />
+        <feDisplacementMap in="SourceGraphic" in2="noise" scale="4" />
+      </filter>
+    </defs>
+  </svg>
+  <div id="root"></div>
+  <script type="module" src="/index.tsx"></script>
+</body>
+
+</html>
